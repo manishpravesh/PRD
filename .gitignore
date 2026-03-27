@@ -1,0 +1,26 @@
+# dependencies
+node_modules/
+app/node_modules/
+server/node_modules/
+
+# environment
+.env
+.env.local
+.env.*.local
+.venv/
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# build output
+app/dist/
+
+# misc
+.DS_Store
+.vscode/
+
+# local PRD artifacts
+prd_extracted.txt
+PRD Full Stack Training.pdf
