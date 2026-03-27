@@ -1,6 +1,6 @@
 # Golf Charity Platform - 9-Part Implementation Plan
 
-## Part 1 - Project Foundation (in progress)
+## Part 1 - Project Foundation (completed)
 
 - Monorepo structure with `app`, `server`, `supabase`, `tests`, and `docs`
 - Root workspace scripts and shared developer commands
@@ -9,6 +9,8 @@
 - Initial README and developer onboarding notes
 
 ## Part 2 - Database Schema and Policies
+
+(in progress)
 
 - Supabase schema migrations for all core entities
 - Enums, constraints, indexes, and RLS policies

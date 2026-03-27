@@ -24,3 +24,6 @@ app/dist/
 # local PRD artifacts
 prd_extracted.txt
 PRD Full Stack Training.pdf
+
+# planning docs
+docs/implementation-9-parts.md
