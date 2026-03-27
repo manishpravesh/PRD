@@ -3,6 +3,8 @@ import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
 import { env, assertRequiredEnv } from "./config/env.js";
+import apiRoutes from "./routes/api.js";
+import { errorHandler, notFoundHandler } from "./middleware/error-handler.js";
 
 assertRequiredEnv();
 
@@ -23,11 +25,12 @@ app.get("/health", (_req, res) => {
 });
 
 app.get("/api/v1", (_req, res) => {
-  res.status(200).json({
-    message: "Golf Charity Platform API is running",
-    version: "v1",
-  });
+  res.redirect(307, "/api/v1/");
 });
+
+app.use("/api/v1", apiRoutes);
+app.use(notFoundHandler);
+app.use(errorHandler);
 
 app.listen(env.port, () => {
   console.log(`[server] listening on http://localhost:${env.port}`);

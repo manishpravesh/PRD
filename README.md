@@ -30,4 +30,14 @@ Implementation based on the PRD for Digital Heroes trainee selection.
 
 ## Current status
 
-- Part 1 (Project Foundation) in progress.
+- Part 1 (Project Foundation) completed.
+- Part 2 (Database Schema and Seed Data) completed.
+- Part 3 (Authentication and Access Control) in progress.
+
+## API (current)
+
+- `GET /health` public server health
+- `GET /api/v1/` public API root
+- `GET /api/v1/auth/me` requires Supabase bearer token
+- `GET /api/v1/admin/health` requires authenticated admin role
+- `GET /api/v1/subscriber/health` requires authenticated subscriber/admin and active subscription
