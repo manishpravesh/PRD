@@ -264,6 +264,15 @@ button.ghost {
   padding: 0.5rem 0.6rem;
 }
 
+.score-form select {
+  flex: 1;
+  min-width: 180px;
+  border-radius: 10px;
+  border: 1px solid #c8dad2;
+  padding: 0.5rem 0.6rem;
+  background: #fff;
+}
+
 .single {
   grid-template-columns: minmax(0, 780px);
   justify-content: center;

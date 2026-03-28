@@ -122,3 +122,135 @@ export async function deleteCharity(charityId) {
     throw new Error(`Unable to delete charity: ${error.message}`);
   }
 }
+
+export async function getMyCharityPreference(profileId) {
+  const { data, error } = await supabaseAdmin
+    .from("user_charity_preferences")
+    .select(
+      "id, user_id, charity_id, contribution_percent, is_primary, charities(id, name, description, country_code)",
+    )
+    .eq("user_id", profileId)
+    .eq("is_primary", true)
+    .maybeSingle();
+
+  if (error) {
+    throw new Error(`Unable to fetch charity preference: ${error.message}`);
+  }
+
+  return data;
+}
+
+export async function updateMyCharityPreference(profileId, payload = {}) {
+  const charityId = String(payload.charityId ?? "").trim();
+  const contributionPercent = Number(payload.contributionPercent ?? 10);
+
+  if (!charityId) {
+    throw new HttpError(400, "charityId is required");
+  }
+
+  if (
+    Number.isNaN(contributionPercent) ||
+    contributionPercent < 10 ||
+    contributionPercent > 100
+  ) {
+    throw new HttpError(400, "contributionPercent must be between 10 and 100");
+  }
+
+  const { data: charity, error: charityError } = await supabaseAdmin
+    .from("charities")
+    .select("id")
+    .eq("id", charityId)
+    .maybeSingle();
+
+  if (charityError) {
+    throw new Error(`Unable to validate charity: ${charityError.message}`);
+  }
+
+  if (!charity) {
+    throw new HttpError(404, "Selected charity not found");
+  }
+
+  await supabaseAdmin
+    .from("user_charity_preferences")
+    .update({ is_primary: false })
+    .eq("user_id", profileId)
+    .eq("is_primary", true);
+
+  const { data, error } = await supabaseAdmin
+    .from("user_charity_preferences")
+    .upsert(
+      {
+        user_id: profileId,
+        charity_id: charityId,
+        contribution_percent: contributionPercent,
+        is_primary: true,
+      },
+      { onConflict: "user_id,charity_id" },
+    )
+    .select("id, user_id, charity_id, contribution_percent, is_primary")
+    .single();
+
+  if (error) {
+    throw new Error(`Unable to update charity preference: ${error.message}`);
+  }
+
+  return data;
+}
+
+export async function listMyIndependentDonations(profileId) {
+  const { data, error } = await supabaseAdmin
+    .from("independent_donations")
+    .select("id, user_id, charity_id, amount_inr, status, created_at")
+    .eq("user_id", profileId)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    throw new Error(`Unable to fetch donations: ${error.message}`);
+  }
+
+  return data;
+}
+
+export async function createIndependentDonation(profileId, payload = {}) {
+  const charityId = String(payload.charityId ?? "").trim();
+  const amountInr = Number(payload.amountInr ?? 0);
+
+  if (!charityId) {
+    throw new HttpError(400, "charityId is required");
+  }
+
+  if (!Number.isInteger(amountInr) || amountInr <= 0) {
+    throw new HttpError(400, "amountInr must be a positive integer");
+  }
+
+  const { data: charity, error: charityError } = await supabaseAdmin
+    .from("charities")
+    .select("id")
+    .eq("id", charityId)
+    .maybeSingle();
+
+  if (charityError) {
+    throw new Error(`Unable to validate charity: ${charityError.message}`);
+  }
+
+  if (!charity) {
+    throw new HttpError(404, "Selected charity not found");
+  }
+
+  const { data, error } = await supabaseAdmin
+    .from("independent_donations")
+    .insert({
+      user_id: profileId,
+      charity_id: charityId,
+      amount_inr: amountInr,
+      status: "pending",
+    })
+    .select("id, user_id, charity_id, amount_inr, status, created_at")
+    .single();
+
+  if (error) {
+    throw new Error(`Unable to create donation: ${error.message}`);
+  }
+
+  return data;
+}

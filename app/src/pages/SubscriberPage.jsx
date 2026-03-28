@@ -9,7 +9,18 @@ export default function SubscriberPage() {
   const [subscription, setSubscription] = useState(null);
   const [scores, setScores] = useState([]);
   const [winners, setWinners] = useState([]);
+  const [charities, setCharities] = useState([]);
+  const [preference, setPreference] = useState(null);
+  const [donations, setDonations] = useState([]);
   const [newScore, setNewScore] = useState({ score: "", scoreDate: "" });
+  const [preferenceForm, setPreferenceForm] = useState({
+    charityId: "",
+    contributionPercent: "10",
+  });
+  const [donationForm, setDonationForm] = useState({
+    charityId: "",
+    amountInr: "",
+  });
 
   async function run(action) {
     setBusy(true);
@@ -24,15 +35,42 @@ export default function SubscriberPage() {
   }
 
   async function load() {
-    const [subRes, scoreRes, winnerRes] = await Promise.all([
+    const [
+      subRes,
+      scoreRes,
+      winnerRes,
+      charitiesRes,
+      preferenceRes,
+      donationsRes,
+    ] = await Promise.all([
       apiRequest("/api/v1/subscriptions/status", { token }),
       apiRequest("/api/v1/scores/latest", { token }),
       apiRequest("/api/v1/winners/me", { token }),
+      apiRequest("/api/v1/charities"),
+      apiRequest("/api/v1/charities/me/preference", { token }),
+      apiRequest("/api/v1/charities/me/donations", { token }),
     ]);
 
     setSubscription(subRes.data?.subscription || null);
     setScores(scoreRes.data?.scores || []);
     setWinners(winnerRes.data || []);
+    setCharities(charitiesRes.data || []);
+    setPreference(preferenceRes.data || null);
+    setDonations(donationsRes.data || []);
+
+    if (preferenceRes.data) {
+      setPreferenceForm({
+        charityId: preferenceRes.data.charity_id,
+        contributionPercent: String(preferenceRes.data.contribution_percent),
+      });
+    }
+
+    if (!donationForm.charityId && (charitiesRes.data || []).length > 0) {
+      setDonationForm((prev) => ({
+        ...prev,
+        charityId: charitiesRes.data[0].id,
+      }));
+    }
   }
 
   useEffect(() => {
@@ -67,6 +105,37 @@ export default function SubscriberPage() {
       if (checkoutUrl) {
         window.open(checkoutUrl, "_blank", "noopener,noreferrer");
       }
+    });
+  }
+
+  async function savePreference(event) {
+    event.preventDefault();
+    await run(async () => {
+      await apiRequest("/api/v1/charities/me/preference", {
+        method: "PUT",
+        token,
+        body: {
+          charityId: preferenceForm.charityId,
+          contributionPercent: Number(preferenceForm.contributionPercent),
+        },
+      });
+      await load();
+    });
+  }
+
+  async function submitDonation(event) {
+    event.preventDefault();
+    await run(async () => {
+      await apiRequest("/api/v1/charities/me/donations", {
+        method: "POST",
+        token,
+        body: {
+          charityId: donationForm.charityId,
+          amountInr: Number(donationForm.amountInr),
+        },
+      });
+      setDonationForm((prev) => ({ ...prev, amountInr: "" }));
+      await load();
     });
   }
 
@@ -160,6 +229,99 @@ export default function SubscriberPage() {
                 </p>
               </div>
               <span className="tag">{winner.payment_status}</span>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <section className="card">
+        <h2>Charity Preference</h2>
+        <p>
+          Current:{" "}
+          <strong>{preference?.charities?.name || "Not selected"}</strong>
+        </p>
+        <form className="score-form" onSubmit={savePreference}>
+          <select
+            value={preferenceForm.charityId}
+            onChange={(event) =>
+              setPreferenceForm((prev) => ({
+                ...prev,
+                charityId: event.target.value,
+              }))
+            }
+            required
+          >
+            <option value="" disabled>
+              Select charity
+            </option>
+            {charities.map((charity) => (
+              <option key={charity.id} value={charity.id}>
+                {charity.name}
+              </option>
+            ))}
+          </select>
+          <input
+            type="number"
+            min="10"
+            max="100"
+            step="1"
+            value={preferenceForm.contributionPercent}
+            onChange={(event) =>
+              setPreferenceForm((prev) => ({
+                ...prev,
+                contributionPercent: event.target.value,
+              }))
+            }
+            required
+          />
+          <button type="submit">Save Preference</button>
+        </form>
+      </section>
+
+      <section className="card">
+        <h2>Independent Donation</h2>
+        <form className="score-form" onSubmit={submitDonation}>
+          <select
+            value={donationForm.charityId}
+            onChange={(event) =>
+              setDonationForm((prev) => ({
+                ...prev,
+                charityId: event.target.value,
+              }))
+            }
+            required
+          >
+            <option value="" disabled>
+              Select charity
+            </option>
+            {charities.map((charity) => (
+              <option key={charity.id} value={charity.id}>
+                {charity.name}
+              </option>
+            ))}
+          </select>
+          <input
+            type="number"
+            min="1"
+            step="1"
+            placeholder="Amount in INR"
+            value={donationForm.amountInr}
+            onChange={(event) =>
+              setDonationForm((prev) => ({
+                ...prev,
+                amountInr: event.target.value,
+              }))
+            }
+            required
+          />
+          <button type="submit">Donate</button>
+        </form>
+
+        <ul className="list compact">
+          {donations.map((donation) => (
+            <li key={donation.id}>
+              <strong>{money(donation.amount_inr)}</strong>
+              <span>{donation.status}</span>
             </li>
           ))}
         </ul>

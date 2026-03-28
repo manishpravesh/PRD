@@ -70,6 +70,10 @@ Backend tests:
 - `PUT /api/v1/scores/:scoreId` requires authenticated subscriber/admin, subscriber must have active subscription
 - `GET /api/v1/charities` public list/search (`?q=` and `?featured=true`)
 - `GET /api/v1/charities/:charityId` public charity detail
+- `GET /api/v1/charities/me/preference` subscriber/admin current selected charity preference
+- `PUT /api/v1/charities/me/preference` subscriber/admin updates charity and contribution percentage
+- `GET /api/v1/charities/me/donations` subscriber/admin independent donation history
+- `POST /api/v1/charities/me/donations` subscriber/admin creates independent donation record
 - `POST /api/v1/charities` admin creates charity
 - `PUT /api/v1/charities/:charityId` admin updates charity
 - `DELETE /api/v1/charities/:charityId` admin deletes charity
