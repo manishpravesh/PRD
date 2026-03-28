@@ -12,7 +12,10 @@ function randomUniqueNumbers(count, min, max) {
 
 function countMatches(userNumbers, winningNumbers) {
   const winSet = new Set(winningNumbers);
-  return userNumbers.reduce((acc, value) => (winSet.has(value) ? acc + 1 : acc), 0);
+  return userNumbers.reduce(
+    (acc, value) => (winSet.has(value) ? acc + 1 : acc),
+    0,
+  );
 }
 
 async function getEligibleEntries(drawId) {
@@ -45,10 +48,15 @@ async function getUserLatestScores(userId) {
   return data.map((x) => x.score);
 }
 
-export async function listDraws({ includeDraft = false, forAdmin = false } = {}) {
+export async function listDraws({
+  includeDraft = false,
+  forAdmin = false,
+} = {}) {
   let query = supabaseAdmin
     .from("draws")
-    .select("id, draw_month, mode, status, winning_numbers, active_subscribers_count, total_pool_inr, jackpot_rollover_inr, published_at")
+    .select(
+      "id, draw_month, mode, status, winning_numbers, active_subscribers_count, total_pool_inr, jackpot_rollover_inr, published_at",
+    )
     .order("draw_month", { ascending: false });
 
   if (!forAdmin && !includeDraft) {
@@ -100,10 +108,16 @@ export async function runDrawSimulation(drawId, adminProfileId) {
   if (drawError) throw new Error(`Unable to fetch draw: ${drawError.message}`);
   if (!draw) throw new HttpError(404, "Draw not found");
 
-  const simulatedNumbers = draw.mode === "random" ? randomUniqueNumbers(5, 1, 45) : draw.winning_numbers;
+  const simulatedNumbers =
+    draw.mode === "random"
+      ? randomUniqueNumbers(5, 1, 45)
+      : draw.winning_numbers;
   const entries = await getEligibleEntries(drawId);
 
-  const result = { totalEntries: entries.length, winnersByTier: { "5": 0, "4": 0, "3": 0 } };
+  const result = {
+    totalEntries: entries.length,
+    winnersByTier: { 5: 0, 4: 0, 3: 0 },
+  };
 
   for (const entry of entries) {
     const scores = await getUserLatestScores(entry.user_id);
@@ -127,7 +141,10 @@ export async function runDrawSimulation(drawId, adminProfileId) {
 
   if (error) throw new Error(`Unable to store simulation: ${error.message}`);
 
-  await supabaseAdmin.from("draws").update({ status: "simulated" }).eq("id", drawId);
+  await supabaseAdmin
+    .from("draws")
+    .update({ status: "simulated" })
+    .eq("id", drawId);
   return data;
 }
 
@@ -146,7 +163,8 @@ export async function publishDraw(drawId, adminProfileId) {
     .eq("id", drawId)
     .maybeSingle();
 
-  if (drawError) throw new Error(`Unable to load draw for publish: ${drawError.message}`);
+  if (drawError)
+    throw new Error(`Unable to load draw for publish: ${drawError.message}`);
   if (!draw) throw new HttpError(404, "Draw not found");
 
   const entries = await getEligibleEntries(drawId);
@@ -175,39 +193,44 @@ export async function publishDraw(drawId, adminProfileId) {
     const winnerCount = ids.length;
 
     if (winnerCount === 0) {
-      await supabaseAdmin
-        .from("draw_pool_tiers")
-        .upsert({
+      await supabaseAdmin.from("draw_pool_tiers").upsert(
+        {
           draw_id: drawId,
           match_count: tier,
           pool_share_percent: percents[tier] * 100,
           pool_amount_inr: tierAmounts[tier],
           rollover_from_previous_inr: tier === 5 ? jackpot : 0,
-        }, { onConflict: "draw_id,match_count" });
+        },
+        { onConflict: "draw_id,match_count" },
+      );
       continue;
     }
 
     const eachPrize = Math.floor(tierAmounts[tier] / winnerCount);
     for (const userId of ids) {
-      await supabaseAdmin.from("winners").upsert({
-        draw_id: drawId,
-        user_id: userId,
-        match_count: tier,
-        prize_inr: eachPrize,
-        verification_status: "pending",
-        payment_status: "pending",
-      }, { onConflict: "draw_id,user_id,match_count" });
+      await supabaseAdmin.from("winners").upsert(
+        {
+          draw_id: drawId,
+          user_id: userId,
+          match_count: tier,
+          prize_inr: eachPrize,
+          verification_status: "pending",
+          payment_status: "pending",
+        },
+        { onConflict: "draw_id,user_id,match_count" },
+      );
     }
 
-    await supabaseAdmin
-      .from("draw_pool_tiers")
-      .upsert({
+    await supabaseAdmin.from("draw_pool_tiers").upsert(
+      {
         draw_id: drawId,
         match_count: tier,
         pool_share_percent: percents[tier] * 100,
         pool_amount_inr: tierAmounts[tier],
         rollover_from_previous_inr: tier === 5 ? jackpot : 0,
-      }, { onConflict: "draw_id,match_count" });
+      },
+      { onConflict: "draw_id,match_count" },
+    );
   }
 
   const nextJackpot = winners[5].length === 0 ? tierAmounts[5] : 0;
@@ -221,7 +244,8 @@ export async function publishDraw(drawId, adminProfileId) {
     })
     .eq("id", drawId);
 
-  if (updateError) throw new Error(`Unable to publish draw: ${updateError.message}`);
+  if (updateError)
+    throw new Error(`Unable to publish draw: ${updateError.message}`);
 
   return {
     drawId,

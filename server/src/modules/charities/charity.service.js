@@ -9,11 +9,15 @@ function normalizeCharityPayload(payload = {}) {
 
   return {
     name,
-    description: payload.description ? String(payload.description).trim() : null,
+    description: payload.description
+      ? String(payload.description).trim()
+      : null,
     website_url: payload.websiteUrl ? String(payload.websiteUrl).trim() : null,
     logo_url: payload.logoUrl ? String(payload.logoUrl).trim() : null,
     banner_url: payload.bannerUrl ? String(payload.bannerUrl).trim() : null,
-    country_code: payload.countryCode ? String(payload.countryCode).trim().toUpperCase() : "IN",
+    country_code: payload.countryCode
+      ? String(payload.countryCode).trim().toUpperCase()
+      : "IN",
     is_featured: Boolean(payload.isFeatured),
   };
 }
@@ -21,7 +25,9 @@ function normalizeCharityPayload(payload = {}) {
 export async function listCharities({ query = "", featured = false } = {}) {
   let dbQuery = supabaseAdmin
     .from("charities")
-    .select("id, name, description, website_url, logo_url, banner_url, country_code, is_featured, created_at")
+    .select(
+      "id, name, description, website_url, logo_url, banner_url, country_code, is_featured, created_at",
+    )
     .order("is_featured", { ascending: false })
     .order("name", { ascending: true });
 
@@ -44,7 +50,9 @@ export async function listCharities({ query = "", featured = false } = {}) {
 export async function getCharityById(charityId) {
   const { data, error } = await supabaseAdmin
     .from("charities")
-    .select("id, name, description, website_url, logo_url, banner_url, country_code, is_featured, created_at, updated_at")
+    .select(
+      "id, name, description, website_url, logo_url, banner_url, country_code, is_featured, created_at, updated_at",
+    )
     .eq("id", charityId)
     .maybeSingle();
 
@@ -64,7 +72,9 @@ export async function createCharity(payload) {
   const { data, error } = await supabaseAdmin
     .from("charities")
     .insert(normalized)
-    .select("id, name, description, website_url, logo_url, banner_url, country_code, is_featured")
+    .select(
+      "id, name, description, website_url, logo_url, banner_url, country_code, is_featured",
+    )
     .single();
 
   if (error) {
@@ -91,7 +101,9 @@ export async function updateCharity(charityId, payload) {
     .from("charities")
     .update(normalized)
     .eq("id", charityId)
-    .select("id, name, description, website_url, logo_url, banner_url, country_code, is_featured")
+    .select(
+      "id, name, description, website_url, logo_url, banner_url, country_code, is_featured",
+    )
     .single();
 
   if (error) {
@@ -102,7 +114,10 @@ export async function updateCharity(charityId, payload) {
 }
 
 export async function deleteCharity(charityId) {
-  const { error } = await supabaseAdmin.from("charities").delete().eq("id", charityId);
+  const { error } = await supabaseAdmin
+    .from("charities")
+    .delete()
+    .eq("id", charityId);
   if (error) {
     throw new Error(`Unable to delete charity: ${error.message}`);
   }

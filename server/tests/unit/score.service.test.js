@@ -12,14 +12,14 @@ describe("validateScorePayload", () => {
   });
 
   it("rejects out-of-range score", () => {
-    expect(() => validateScorePayload({ score: 0, scoreDate: "2026-03-20" })).toThrow(
-      "score must be an integer between 1 and 45",
-    );
+    expect(() =>
+      validateScorePayload({ score: 0, scoreDate: "2026-03-20" }),
+    ).toThrow("score must be an integer between 1 and 45");
   });
 
   it("rejects invalid score date", () => {
-    expect(() => validateScorePayload({ score: 20, scoreDate: "not-a-date" })).toThrow(
-      "scoreDate must be a valid date",
-    );
+    expect(() =>
+      validateScorePayload({ score: 20, scoreDate: "not-a-date" }),
+    ).toThrow("scoreDate must be a valid date");
   });
 });

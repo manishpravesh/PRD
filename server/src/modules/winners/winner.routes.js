@@ -12,8 +12,18 @@ const router = Router();
 
 router.use(authenticate);
 
-router.get("/me", requireRole("subscriber", "admin"), requireActiveSubscriptionForSubscriber, getMyWinners);
-router.put("/me/:winnerId/proof", requireRole("subscriber", "admin"), requireActiveSubscriptionForSubscriber, putMyWinnerProof);
+router.get(
+  "/me",
+  requireRole("subscriber", "admin"),
+  requireActiveSubscriptionForSubscriber,
+  getMyWinners,
+);
+router.put(
+  "/me/:winnerId/proof",
+  requireRole("subscriber", "admin"),
+  requireActiveSubscriptionForSubscriber,
+  putMyWinnerProof,
+);
 
 router.get("/admin/all", requireRole("admin"), getAllWinnersAdmin);
 router.put("/admin/:winnerId/review", requireRole("admin"), reviewWinnerAdmin);

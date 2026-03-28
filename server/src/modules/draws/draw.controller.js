@@ -27,7 +27,10 @@ export const postDraw = asyncHandler(async (req, res) => {
 });
 
 export const simulateDraw = asyncHandler(async (req, res) => {
-  const result = await runDrawSimulation(req.params.drawId, req.auth.profile.id);
+  const result = await runDrawSimulation(
+    req.params.drawId,
+    req.auth.profile.id,
+  );
   res.status(200).json({ ok: true, data: result });
 });
 
