@@ -33,7 +33,9 @@ export function AuthProvider({ children }) {
 
     async function init() {
       if (!hasSupabaseConfig || !supabase) {
-        setError("Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY in frontend env");
+        setError(
+          "Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY in frontend env",
+        );
         setLoading(false);
         return;
       }
@@ -45,10 +47,12 @@ export function AuthProvider({ children }) {
       await refreshProfile(data.session?.access_token || "");
       setLoading(false);
 
-      const { data: listener } = supabase.auth.onAuthStateChange(async (_event, nextSession) => {
-        setSession(nextSession || null);
-        await refreshProfile(nextSession?.access_token || "");
-      });
+      const { data: listener } = supabase.auth.onAuthStateChange(
+        async (_event, nextSession) => {
+          setSession(nextSession || null);
+          await refreshProfile(nextSession?.access_token || "");
+        },
+      );
 
       return () => listener.subscription.unsubscribe();
     }
@@ -69,7 +73,10 @@ export function AuthProvider({ children }) {
       throw new Error("Supabase is not configured");
     }
 
-    const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+    const { error: signInError } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
     if (signInError) {
       throw new Error(signInError.message);
     }

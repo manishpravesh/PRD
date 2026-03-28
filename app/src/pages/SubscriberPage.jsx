@@ -77,16 +77,33 @@ export default function SubscriberPage() {
 
       <section className="card">
         <h2>Subscription</h2>
-        <p>Status: <strong>{subscription?.status || "inactive"}</strong></p>
-        <p>Plan: <strong>{subscription?.plan || "none"}</strong></p>
-        <p>Renewal: <strong>{subscription?.current_period_end || "-"}</strong></p>
+        <p>
+          Status: <strong>{subscription?.status || "inactive"}</strong>
+        </p>
+        <p>
+          Plan: <strong>{subscription?.plan || "none"}</strong>
+        </p>
+        <p>
+          Renewal: <strong>{subscription?.current_period_end || "-"}</strong>
+        </p>
         <div className="actions">
-          <button type="button" onClick={() => startCheckout("monthly")}>Start Monthly</button>
-          <button type="button" onClick={() => startCheckout("yearly")}>Start Yearly</button>
+          <button type="button" onClick={() => startCheckout("monthly")}>
+            Start Monthly
+          </button>
+          <button type="button" onClick={() => startCheckout("yearly")}>
+            Start Yearly
+          </button>
           <button
             type="button"
             className="ghost"
-            onClick={() => run(() => apiRequest("/api/v1/subscriptions/cancel", { method: "POST", token }).then(load))}
+            onClick={() =>
+              run(() =>
+                apiRequest("/api/v1/subscriptions/cancel", {
+                  method: "POST",
+                  token,
+                }).then(load),
+              )
+            }
           >
             Cancel At Period End
           </button>
@@ -102,13 +119,20 @@ export default function SubscriberPage() {
             max="45"
             placeholder="Stableford score"
             value={newScore.score}
-            onChange={(event) => setNewScore((prev) => ({ ...prev, score: event.target.value }))}
+            onChange={(event) =>
+              setNewScore((prev) => ({ ...prev, score: event.target.value }))
+            }
             required
           />
           <input
             type="date"
             value={newScore.scoreDate}
-            onChange={(event) => setNewScore((prev) => ({ ...prev, scoreDate: event.target.value }))}
+            onChange={(event) =>
+              setNewScore((prev) => ({
+                ...prev,
+                scoreDate: event.target.value,
+              }))
+            }
             required
           />
           <button type="submit">Save Score</button>
@@ -130,7 +154,10 @@ export default function SubscriberPage() {
             <li key={winner.id}>
               <div>
                 <strong>{winner.match_count}-Match Winner</strong>
-                <p>Prize: {money(winner.prize_inr)} | Verify: {winner.verification_status}</p>
+                <p>
+                  Prize: {money(winner.prize_inr)} | Verify:{" "}
+                  {winner.verification_status}
+                </p>
               </div>
               <span className="tag">{winner.payment_status}</span>
             </li>

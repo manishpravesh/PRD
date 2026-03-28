@@ -40,7 +40,10 @@ export default function AdminPage() {
   }, [token]);
 
   async function runDrawAction(drawId, action) {
-    const path = action === "simulate" ? `/api/v1/draws/${drawId}/simulate` : `/api/v1/draws/${drawId}/publish`;
+    const path =
+      action === "simulate"
+        ? `/api/v1/draws/${drawId}/simulate`
+        : `/api/v1/draws/${drawId}/publish`;
 
     await run(async () => {
       await apiRequest(path, { method: "POST", token });
@@ -55,7 +58,8 @@ export default function AdminPage() {
         token,
         body: {
           action,
-          rejectionReason: action === "reject" ? "Proof did not meet criteria" : undefined,
+          rejectionReason:
+            action === "reject" ? "Proof did not meet criteria" : undefined,
         },
       });
       await load();
@@ -69,9 +73,17 @@ export default function AdminPage() {
 
       <section className="card">
         <h2>Analytics</h2>
-        <p>Total users: <strong>{analytics?.totalUsers ?? 0}</strong></p>
-        <p>Total prize pool: <strong>{money(analytics?.totalPrizePool || 0)}</strong></p>
-        <p>Total charity contribution: <strong>{money(analytics?.totalCharityContribution || 0)}</strong></p>
+        <p>
+          Total users: <strong>{analytics?.totalUsers ?? 0}</strong>
+        </p>
+        <p>
+          Total prize pool:{" "}
+          <strong>{money(analytics?.totalPrizePool || 0)}</strong>
+        </p>
+        <p>
+          Total charity contribution:{" "}
+          <strong>{money(analytics?.totalCharityContribution || 0)}</strong>
+        </p>
       </section>
 
       <section className="card">
@@ -79,9 +91,21 @@ export default function AdminPage() {
         <div className="actions wrap">
           {draws.map((draw) => (
             <div key={draw.id} className="action-row">
-              <span>{draw.draw_month} ({draw.status})</span>
-              <button type="button" onClick={() => runDrawAction(draw.id, "simulate")}>Simulate</button>
-              <button type="button" onClick={() => runDrawAction(draw.id, "publish")}>Publish</button>
+              <span>
+                {draw.draw_month} ({draw.status})
+              </span>
+              <button
+                type="button"
+                onClick={() => runDrawAction(draw.id, "simulate")}
+              >
+                Simulate
+              </button>
+              <button
+                type="button"
+                onClick={() => runDrawAction(draw.id, "publish")}
+              >
+                Publish
+              </button>
             </div>
           ))}
         </div>
@@ -93,13 +117,34 @@ export default function AdminPage() {
           {winners.map((winner) => (
             <li key={winner.id}>
               <div>
-                <strong>User {winner.user_id.slice(0, 8)} | {winner.match_count}-Match</strong>
-                <p>{money(winner.prize_inr)} | {winner.verification_status} | {winner.payment_status}</p>
+                <strong>
+                  User {winner.user_id.slice(0, 8)} | {winner.match_count}-Match
+                </strong>
+                <p>
+                  {money(winner.prize_inr)} | {winner.verification_status} |{" "}
+                  {winner.payment_status}
+                </p>
               </div>
               <div className="actions">
-                <button type="button" onClick={() => reviewWinner(winner.id, "approve")}>Approve</button>
-                <button type="button" className="ghost" onClick={() => reviewWinner(winner.id, "reject")}>Reject</button>
-                <button type="button" onClick={() => reviewWinner(winner.id, "mark-paid")}>Mark Paid</button>
+                <button
+                  type="button"
+                  onClick={() => reviewWinner(winner.id, "approve")}
+                >
+                  Approve
+                </button>
+                <button
+                  type="button"
+                  className="ghost"
+                  onClick={() => reviewWinner(winner.id, "reject")}
+                >
+                  Reject
+                </button>
+                <button
+                  type="button"
+                  onClick={() => reviewWinner(winner.id, "mark-paid")}
+                >
+                  Mark Paid
+                </button>
               </div>
             </li>
           ))}

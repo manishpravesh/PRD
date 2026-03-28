@@ -12,13 +12,29 @@ function Navigation() {
 
   return (
     <nav className="top-nav">
-      <NavLink to="/" end className={({ isActive }) => (isActive ? "nav-link active" : "nav-link")}>
+      <NavLink
+        to="/"
+        end
+        className={({ isActive }) =>
+          isActive ? "nav-link active" : "nav-link"
+        }
+      >
         Public
       </NavLink>
-      <NavLink to="/subscriber" className={({ isActive }) => (isActive ? "nav-link active" : "nav-link")}>
+      <NavLink
+        to="/subscriber"
+        className={({ isActive }) =>
+          isActive ? "nav-link active" : "nav-link"
+        }
+      >
         Subscriber
       </NavLink>
-      <NavLink to="/admin" className={({ isActive }) => (isActive ? "nav-link active" : "nav-link")}>
+      <NavLink
+        to="/admin"
+        className={({ isActive }) =>
+          isActive ? "nav-link active" : "nav-link"
+        }
+      >
         Admin
       </NavLink>
       <div className="spacer" />
@@ -30,7 +46,12 @@ function Navigation() {
           </button>
         </>
       ) : (
-        <NavLink to="/login" className={({ isActive }) => (isActive ? "nav-link active" : "nav-link")}>
+        <NavLink
+          to="/login"
+          className={({ isActive }) =>
+            isActive ? "nav-link active" : "nav-link"
+          }
+        >
           Sign In
         </NavLink>
       )}
@@ -47,8 +68,8 @@ export default function App() {
         <div className="brand-kicker">Digital Heroes Challenge Build</div>
         <h1>Play For Better</h1>
         <p>
-          Subscription + draw + charity in one modern workflow. This build now uses route-level pages and
-          Supabase session auth.
+          Subscription + draw + charity in one modern workflow. This build now
+          uses route-level pages and Supabase session auth.
         </p>
         <Navigation />
       </header>

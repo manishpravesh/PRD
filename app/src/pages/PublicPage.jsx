@@ -35,7 +35,9 @@ export default function PublicPage() {
                 <strong>{charity.name}</strong>
                 <p>{charity.description || "No description yet."}</p>
               </div>
-              <span className={charity.is_featured ? "tag tag-featured" : "tag"}>
+              <span
+                className={charity.is_featured ? "tag tag-featured" : "tag"}
+              >
                 {charity.is_featured ? "Featured" : charity.country_code}
               </span>
             </li>
@@ -50,7 +52,9 @@ export default function PublicPage() {
             <li key={draw.id}>
               <div>
                 <strong>{draw.draw_month}</strong>
-                <p>Winning numbers: {(draw.winning_numbers || []).join(" - ")}</p>
+                <p>
+                  Winning numbers: {(draw.winning_numbers || []).join(" - ")}
+                </p>
               </div>
               <span className="tag">{draw.mode}</span>
             </li>
