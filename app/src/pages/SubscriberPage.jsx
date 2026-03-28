@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useAuth } from "../auth/AuthContext";
+import { useAuth } from "../auth/useAuth";
 import { apiRequest, money } from "../lib/api";
 
 export default function SubscriberPage() {
@@ -21,6 +21,7 @@ export default function SubscriberPage() {
     charityId: "",
     amountInr: "",
   });
+  const [proofInputs, setProofInputs] = useState({});
 
   async function run(action) {
     setBusy(true);
@@ -139,6 +140,23 @@ export default function SubscriberPage() {
     });
   }
 
+  async function submitProof(winnerId) {
+    const proofFilePath = String(proofInputs[winnerId] ?? "").trim();
+    if (!proofFilePath) {
+      setError("Proof file path is required");
+      return;
+    }
+
+    await run(async () => {
+      await apiRequest(`/api/v1/winners/me/${winnerId}/proof`, {
+        method: "PUT",
+        token,
+        body: { proofFilePath },
+      });
+      await load();
+    });
+  }
+
   return (
     <main className="grid">
       {error ? <div className="flash flash-error wide">{error}</div> : null}
@@ -227,6 +245,20 @@ export default function SubscriberPage() {
                   Prize: {money(winner.prize_inr)} | Verify:{" "}
                   {winner.verification_status}
                 </p>
+                <input
+                  type="text"
+                  placeholder="Enter proof file path"
+                  value={proofInputs[winner.id] || ""}
+                  onChange={(event) =>
+                    setProofInputs((prev) => ({
+                      ...prev,
+                      [winner.id]: event.target.value,
+                    }))
+                  }
+                />
+                <button onClick={() => submitProof(winner.id)}>
+                  Submit Proof
+                </button>
               </div>
               <span className="tag">{winner.payment_status}</span>
             </li>

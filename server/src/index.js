@@ -30,10 +30,6 @@ export function createApp() {
     });
   });
 
-  app.get("/api/v1", (_req, res) => {
-    res.redirect(307, "/api/v1/");
-  });
-
   app.use("/api/v1", apiRoutes);
   app.use(notFoundHandler);
   app.use(errorHandler);

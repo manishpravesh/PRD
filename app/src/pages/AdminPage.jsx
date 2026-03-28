@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useAuth } from "../auth/AuthContext";
+import { useAuth } from "../auth/useAuth";
 import { apiRequest, money } from "../lib/api";
 
 export default function AdminPage() {
@@ -9,6 +9,14 @@ export default function AdminPage() {
   const [analytics, setAnalytics] = useState(null);
   const [draws, setDraws] = useState([]);
   const [winners, setWinners] = useState([]);
+  const [charities, setCharities] = useState([]);
+  const [drawForm, setDrawForm] = useState({ drawMonth: "", mode: "random" });
+  const [charityForm, setCharityForm] = useState({
+    name: "",
+    description: "",
+    countryCode: "IN",
+    isFeatured: false,
+  });
 
   async function run(action) {
     setBusy(true);
@@ -23,15 +31,18 @@ export default function AdminPage() {
   }
 
   async function load() {
-    const [analyticsRes, drawsRes, winnersRes] = await Promise.all([
-      apiRequest("/api/v1/admin/analytics", { token }),
-      apiRequest("/api/v1/draws/admin/all", { token }),
-      apiRequest("/api/v1/winners/admin/all", { token }),
-    ]);
+    const [analyticsRes, drawsRes, winnersRes, charitiesRes] =
+      await Promise.all([
+        apiRequest("/api/v1/admin/analytics", { token }),
+        apiRequest("/api/v1/draws/admin/all", { token }),
+        apiRequest("/api/v1/winners/admin/all", { token }),
+        apiRequest("/api/v1/charities"),
+      ]);
 
     setAnalytics(analyticsRes.data || null);
     setDraws(drawsRes.data || []);
     setWinners(winnersRes.data || []);
+    setCharities(charitiesRes.data || []);
   }
 
   useEffect(() => {
@@ -66,6 +77,47 @@ export default function AdminPage() {
     });
   }
 
+  async function createDraw(event) {
+    event.preventDefault();
+    await run(async () => {
+      await apiRequest("/api/v1/draws", {
+        method: "POST",
+        token,
+        body: drawForm,
+      });
+      setDrawForm((prev) => ({ ...prev, drawMonth: "" }));
+      await load();
+    });
+  }
+
+  async function createCharity(event) {
+    event.preventDefault();
+    await run(async () => {
+      await apiRequest("/api/v1/charities", {
+        method: "POST",
+        token,
+        body: charityForm,
+      });
+      setCharityForm({
+        name: "",
+        description: "",
+        countryCode: "IN",
+        isFeatured: false,
+      });
+      await load();
+    });
+  }
+
+  async function deleteCharity(charityId) {
+    await run(async () => {
+      await apiRequest(`/api/v1/charities/${charityId}`, {
+        method: "DELETE",
+        token,
+      });
+      await load();
+    });
+  }
+
   return (
     <main className="grid">
       {error ? <div className="flash flash-error wide">{error}</div> : null}
@@ -88,6 +140,29 @@ export default function AdminPage() {
 
       <section className="card">
         <h2>Draw Operations</h2>
+        <form className="score-form" onSubmit={createDraw}>
+          <input
+            type="date"
+            value={drawForm.drawMonth}
+            onChange={(event) =>
+              setDrawForm((prev) => ({
+                ...prev,
+                drawMonth: event.target.value,
+              }))
+            }
+            required
+          />
+          <select
+            value={drawForm.mode}
+            onChange={(event) =>
+              setDrawForm((prev) => ({ ...prev, mode: event.target.value }))
+            }
+          >
+            <option value="random">random</option>
+            <option value="algorithmic">algorithmic</option>
+          </select>
+          <button type="submit">Create Draw</button>
+        </form>
         <div className="actions wrap">
           {draws.map((draw) => (
             <div key={draw.id} className="action-row">
@@ -109,6 +184,82 @@ export default function AdminPage() {
             </div>
           ))}
         </div>
+      </section>
+
+      <section className="card wide">
+        <h2>Charity Management</h2>
+        <form className="score-form" onSubmit={createCharity}>
+          <input
+            type="text"
+            placeholder="Charity name"
+            value={charityForm.name}
+            onChange={(event) =>
+              setCharityForm((prev) => ({ ...prev, name: event.target.value }))
+            }
+            required
+          />
+          <input
+            type="text"
+            placeholder="Description"
+            value={charityForm.description}
+            onChange={(event) =>
+              setCharityForm((prev) => ({
+                ...prev,
+                description: event.target.value,
+              }))
+            }
+          />
+          <input
+            type="text"
+            maxLength="2"
+            placeholder="Country"
+            value={charityForm.countryCode}
+            onChange={(event) =>
+              setCharityForm((prev) => ({
+                ...prev,
+                countryCode: event.target.value.toUpperCase(),
+              }))
+            }
+          />
+          <button
+            type="button"
+            className={charityForm.isFeatured ? "" : "ghost"}
+            onClick={() =>
+              setCharityForm((prev) => ({
+                ...prev,
+                isFeatured: !prev.isFeatured,
+              }))
+            }
+          >
+            {charityForm.isFeatured ? "Featured" : "Standard"}
+          </button>
+          <button type="submit">Add Charity</button>
+        </form>
+
+        <ul className="list">
+          {charities.map((charity) => (
+            <li key={charity.id}>
+              <div>
+                <strong>{charity.name}</strong>
+                <p>{charity.description || "No description"}</p>
+              </div>
+              <div className="actions">
+                <span
+                  className={charity.is_featured ? "tag tag-featured" : "tag"}
+                >
+                  {charity.is_featured ? "Featured" : charity.country_code}
+                </span>
+                <button
+                  type="button"
+                  className="ghost"
+                  onClick={() => deleteCharity(charity.id)}
+                >
+                  Delete
+                </button>
+              </div>
+            </li>
+          ))}
+        </ul>
       </section>
 
       <section className="card wide">

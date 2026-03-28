@@ -5,12 +5,24 @@ export default function PublicPage() {
   const [charities, setCharities] = useState([]);
   const [draws, setDraws] = useState([]);
   const [error, setError] = useState("");
+  const [search, setSearch] = useState("");
+  const [featuredOnly, setFeaturedOnly] = useState(false);
 
   useEffect(() => {
     async function load() {
       try {
+        const params = new URLSearchParams();
+        if (search.trim()) {
+          params.set("q", search.trim());
+        }
+        if (featuredOnly) {
+          params.set("featured", "true");
+        }
+
+        const query = params.toString() ? `?${params.toString()}` : "";
+
         const [charityRes, drawRes] = await Promise.all([
-          apiRequest("/api/v1/charities"),
+          apiRequest(`/api/v1/charities${query}`),
           apiRequest("/api/v1/draws"),
         ]);
         setCharities(charityRes.data || []);
@@ -21,13 +33,28 @@ export default function PublicPage() {
     }
 
     load();
-  }, []);
+  }, [search, featuredOnly]);
 
   return (
     <main className="grid">
       {error ? <div className="flash flash-error wide">{error}</div> : null}
       <section className="card">
         <h2>Featured Charities</h2>
+        <div className="score-form">
+          <input
+            type="text"
+            placeholder="Search charities"
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+          />
+          <button
+            type="button"
+            className={featuredOnly ? "" : "ghost"}
+            onClick={() => setFeaturedOnly((prev) => !prev)}
+          >
+            {featuredOnly ? "Featured Only" : "All Charities"}
+          </button>
+        </div>
         <ul className="list">
           {charities.map((charity) => (
             <li key={charity.id}>

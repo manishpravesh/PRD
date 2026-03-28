@@ -52,7 +52,10 @@ Backend tests:
 
 - Part 1 (Project Foundation) completed.
 - Part 2 (Database Schema and Seed Data) completed.
-- Part 3 (Authentication and Access Control) in progress.
+- Part 3 (Authentication and Access Control) completed.
+- Part 4/5/6 core backend modules completed (subscriptions, scores, charities, draws, winners, admin analytics).
+- Frontend routed experience completed (public/subscriber/admin + Supabase session auth).
+- Initial automated test harness completed (unit + integration baseline).
 
 ## API (current)
 
@@ -87,3 +90,9 @@ Backend tests:
 - `GET /api/v1/winners/admin/all` admin winner management list
 - `PUT /api/v1/winners/admin/:winnerId/review` admin approve/reject/mark-paid
 - `GET /api/v1/admin/analytics` admin summary metrics
+
+## Remaining for Production Hardening
+
+- Full Stripe live-mode wiring and payout operations
+- End-to-end browser tests for complete evaluator checklist
+- Deployment to new Vercel and new Supabase project with live credentials
