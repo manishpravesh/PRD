@@ -5,6 +5,7 @@ import morgan from "morgan";
 import { env, assertRequiredEnv } from "./config/env.js";
 import apiRoutes from "./routes/api.js";
 import { errorHandler, notFoundHandler } from "./middleware/error-handler.js";
+import { stripeWebhook } from "./modules/subscriptions/subscription.controller.js";
 
 assertRequiredEnv();
 
@@ -12,6 +13,11 @@ const app = express();
 
 app.use(helmet());
 app.use(cors({ origin: env.appOrigin, credentials: true }));
+app.post(
+  "/api/v1/subscriptions/webhook",
+  express.raw({ type: "application/json" }),
+  stripeWebhook,
+);
 app.use(express.json({ limit: "2mb" }));
 app.use(morgan("dev"));
 

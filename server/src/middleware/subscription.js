@@ -14,3 +14,12 @@ export async function requireActiveSubscription(req, _res, next) {
 
   next();
 }
+
+export async function requireActiveSubscriptionForSubscriber(req, _res, next) {
+  const role = req.auth?.profile?.role;
+  if (role === "admin") {
+    return next();
+  }
+
+  return requireActiveSubscription(req, _res, next);
+}

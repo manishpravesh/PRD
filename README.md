@@ -41,3 +41,10 @@ Implementation based on the PRD for Digital Heroes trainee selection.
 - `GET /api/v1/auth/me` requires Supabase bearer token
 - `GET /api/v1/admin/health` requires authenticated admin role
 - `GET /api/v1/subscriber/health` requires authenticated subscriber/admin and active subscription
+- `GET /api/v1/subscriptions/status` requires authenticated subscriber/admin
+- `POST /api/v1/subscriptions/checkout` requires authenticated subscriber/admin and body `{ "plan": "monthly" | "yearly" }`
+- `POST /api/v1/subscriptions/cancel` requires authenticated subscriber/admin
+- `POST /api/v1/subscriptions/webhook` Stripe webhook endpoint (raw body)
+- `GET /api/v1/scores/latest` requires authenticated subscriber/admin, subscriber must have active subscription
+- `POST /api/v1/scores` requires authenticated subscriber/admin, subscriber must have active subscription
+- `PUT /api/v1/scores/:scoreId` requires authenticated subscriber/admin, subscriber must have active subscription

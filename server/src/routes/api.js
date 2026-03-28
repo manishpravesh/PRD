@@ -1,6 +1,8 @@
 import { Router } from "express";
 import authRoutes from "../modules/auth/auth.routes.js";
 import adminRoutes from "../modules/admin/admin.routes.js";
+import subscriptionRoutes from "../modules/subscriptions/subscription.routes.js";
+import scoreRoutes from "../modules/scores/score.routes.js";
 import { authenticate, requireRole } from "../middleware/auth.js";
 import { requireActiveSubscription } from "../middleware/subscription.js";
 
@@ -15,6 +17,8 @@ router.get("/", (_req, res) => {
 
 router.use("/auth", authRoutes);
 router.use("/admin", adminRoutes);
+router.use("/subscriptions", subscriptionRoutes);
+router.use("/scores", scoreRoutes);
 
 router.get(
   "/subscriber/health",
