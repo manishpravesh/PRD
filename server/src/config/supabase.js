@@ -9,14 +9,14 @@ const clientOptions = {
 };
 
 export const supabaseAnon = createClient(
-  env.supabaseUrl,
-  env.supabaseAnonKey,
+  env.supabaseUrl || "http://127.0.0.1:54321",
+  env.supabaseAnonKey || "test-anon-key",
   clientOptions,
 );
 
 export const supabaseAdmin = createClient(
-  env.supabaseUrl,
-  env.supabaseServiceRoleKey,
+  env.supabaseUrl || "http://127.0.0.1:54321",
+  env.supabaseServiceRoleKey || "test-service-role-key",
   clientOptions,
 );
 

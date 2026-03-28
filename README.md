@@ -28,6 +28,14 @@ Implementation based on the PRD for Digital Heroes trainee selection.
 4. Start backend:
    - `npm run dev:server`
 
+## Testing
+
+Backend tests:
+
+- `npm run test --workspace server`
+- `npm run test:unit --workspace server`
+- `npm run test:integration --workspace server`
+
 ## Current status
 
 - Part 1 (Project Foundation) completed.
@@ -48,3 +56,18 @@ Implementation based on the PRD for Digital Heroes trainee selection.
 - `GET /api/v1/scores/latest` requires authenticated subscriber/admin, subscriber must have active subscription
 - `POST /api/v1/scores` requires authenticated subscriber/admin, subscriber must have active subscription
 - `PUT /api/v1/scores/:scoreId` requires authenticated subscriber/admin, subscriber must have active subscription
+- `GET /api/v1/charities` public list/search (`?q=` and `?featured=true`)
+- `GET /api/v1/charities/:charityId` public charity detail
+- `POST /api/v1/charities` admin creates charity
+- `PUT /api/v1/charities/:charityId` admin updates charity
+- `DELETE /api/v1/charities/:charityId` admin deletes charity
+- `GET /api/v1/draws` public published draws
+- `GET /api/v1/draws/admin/all` admin full draw list
+- `POST /api/v1/draws` admin create draft draw
+- `POST /api/v1/draws/:drawId/simulate` admin simulation run
+- `POST /api/v1/draws/:drawId/publish` admin publish and create winners/tier pools
+- `GET /api/v1/winners/me` subscriber/admin own winner records
+- `PUT /api/v1/winners/me/:winnerId/proof` subscriber/admin upload proof path
+- `GET /api/v1/winners/admin/all` admin winner management list
+- `PUT /api/v1/winners/admin/:winnerId/review` admin approve/reject/mark-paid
+- `GET /api/v1/admin/analytics` admin summary metrics
