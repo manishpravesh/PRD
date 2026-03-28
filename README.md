@@ -28,6 +28,18 @@ Implementation based on the PRD for Digital Heroes trainee selection.
 4. Start backend:
    - `npm run dev:server`
 
+## Frontend Auth + Routes
+
+- Route pages:
+   - `/` public dashboard
+   - `/login` Supabase sign-in
+   - `/subscriber` protected subscriber/admin page
+   - `/admin` protected admin-only page
+- Required frontend env vars:
+   - `VITE_SUPABASE_URL`
+   - `VITE_SUPABASE_ANON_KEY`
+   - `VITE_API_BASE_URL`
+
 ## Testing
 
 Backend tests:
