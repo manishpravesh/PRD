@@ -11,10 +11,7 @@ export default function AuthProvider({ children }) {
 
   const token = session?.access_token || "";
 
-  async function bootstrapProfile(
-    nextToken,
-    { fullName, role, adminCode } = {},
-  ) {
+  async function bootstrapProfile(nextToken, { fullName } = {}) {
     if (!nextToken) return null;
 
     const response = await apiRequest("/api/v1/auth/bootstrap", {
@@ -22,8 +19,6 @@ export default function AuthProvider({ children }) {
       token: nextToken,
       body: {
         fullName,
-        role: role || "subscriber",
-        adminCode,
       },
     });
 
@@ -42,7 +37,7 @@ export default function AuthProvider({ children }) {
 
       if (!nextProfile && result.data?.needsProfileSetup) {
         nextProfile = await bootstrapProfile(nextToken, {
-          role: "subscriber",
+          fullName: "",
         });
       }
 
@@ -115,7 +110,7 @@ export default function AuthProvider({ children }) {
     }
   }
 
-  async function signUp({ email, password, fullName, role, adminCode }) {
+  async function signUp({ email, password, fullName }) {
     if (!supabase) {
       throw new Error("Supabase is not configured");
     }
@@ -141,7 +136,7 @@ export default function AuthProvider({ children }) {
       );
     }
 
-    await bootstrapProfile(nextToken, { fullName, role, adminCode });
+    await bootstrapProfile(nextToken, { fullName });
     await refreshProfile(nextToken);
   }
 

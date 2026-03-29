@@ -2,16 +2,17 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/useAuth";
 
+const ADMIN_EMAIL = "admin@platform.com";
+const ADMIN_PASSWORD = "Admin@12345";
+
 export default function LoginPage() {
   const navigate = useNavigate();
   const { signIn, signUp, error: authError } = useAuth();
   const [mode, setMode] = useState("signin");
   const [form, setForm] = useState({
     fullName: "",
-    email: "",
-    password: "",
-    role: "subscriber",
-    adminCode: "",
+    email: ADMIN_EMAIL,
+    password: ADMIN_PASSWORD,
   });
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -29,8 +30,6 @@ export default function LoginPage() {
           email: form.email,
           password: form.password,
           fullName: form.fullName,
-          role: form.role,
-          adminCode: form.adminCode,
         });
         setNotice("Account created successfully.");
       } else {
@@ -52,7 +51,7 @@ export default function LoginPage() {
         <p>
           {mode === "signin"
             ? "Use your Supabase credentials to access subscriber and admin routes."
-            : "Create your account first. New users default to subscriber role."}
+            : "Create your subscriber account first."}
         </p>
         <div className="actions">
           <button
@@ -105,31 +104,9 @@ export default function LoginPage() {
             required
           />
           {mode === "signup" ? (
-            <>
-              <select
-                value={form.role}
-                onChange={(event) =>
-                  setForm((prev) => ({ ...prev, role: event.target.value }))
-                }
-              >
-                <option value="subscriber">Subscriber</option>
-                <option value="admin">Admin</option>
-              </select>
-              {form.role === "admin" ? (
-                <input
-                  type="password"
-                  placeholder="Admin signup code"
-                  value={form.adminCode}
-                  onChange={(event) =>
-                    setForm((prev) => ({
-                      ...prev,
-                      adminCode: event.target.value,
-                    }))
-                  }
-                  required
-                />
-              ) : null}
-            </>
+            <div className="flash">
+              Admin signup is disabled. Contact platform owner for admin access.
+            </div>
           ) : null}
           <button type="submit" disabled={busy}>
             {busy
