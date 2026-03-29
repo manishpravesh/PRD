@@ -7,25 +7,61 @@ This folder contains database migrations, row-level security policies, and seed 
 - `migrations` - versioned SQL schema and policy files
 - `seed` - seed data for local/staging QA
 
-Detailed schema implementation starts in Part 2.
+## Fast Setup (Supabase Dashboard)
 
-## Part 2 Status
+Use this path when Supabase CLI is not installed.
 
-Part 2 is implemented with:
+1. Create a new Supabase project.
+2. Open SQL Editor and run:
+   - `migrations/20260327_001_init_schema.sql`
+3. For staging/local QA, run:
+   - `seed/seed.sql`
+4. Open Authentication -> Users and create test users for emails used in seed:
+   - `admin@platform.com`
+   - `golfer1@test.com`
+   - `golfer2@test.com`
+5. In SQL Editor, link seeded profiles to created auth users:
 
-- `migrations/20260327_001_init_schema.sql`
-- `seed/seed.sql`
+```sql
+update public.profiles p
+set auth_user_id = u.id
+from auth.users u
+where lower(u.email) = lower(p.email)
+  and p.auth_user_id is null;
+```
 
-## Run Migrations and Seed
+6. Verify mapping:
 
-Using Supabase SQL editor (quickest):
+```sql
+select p.id, p.email, p.role, p.auth_user_id
+from public.profiles p
+order by p.created_at;
+```
 
-1. Run `migrations/20260327_001_init_schema.sql`
-2. Run `seed/seed.sql`
+Without this mapping, authenticated API calls will fail with "Profile not found for authenticated user".
 
-Using Supabase CLI (if configured):
+## Required Project Settings
+
+- Authentication provider: Email enabled
+- URL settings:
+  - Site URL should match frontend URL
+  - Add frontend URL in redirect URLs for login flows
+
+## Environment Values to Copy
+
+From Supabase project settings, copy to `.env` using `.env.example` template:
+
+- `SUPABASE_URL` = Project URL
+- `SUPABASE_ANON_KEY` = anon public key
+- `SUPABASE_SERVICE_ROLE_KEY` = service role key
+- `VITE_SUPABASE_URL` = Project URL
+- `VITE_SUPABASE_ANON_KEY` = anon public key
+
+## CLI Path (Optional)
+
+If Supabase CLI is installed and linked:
 
 1. `supabase db push`
 2. `supabase db reset --linked`
 
-Note: `profiles.auth_user_id` links to `auth.users.id` but is nullable, so seed data works before auth records are wired in Part 3.
+Note: `profiles.auth_user_id` references `auth.users.id`. Seed data intentionally inserts profiles first, then links auth users after they are created.

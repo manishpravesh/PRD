@@ -96,3 +96,10 @@ Backend tests:
 - Full Stripe live-mode wiring and payout operations
 - End-to-end browser tests for complete evaluator checklist
 - Deployment to new Vercel and new Supabase project with live credentials
+
+## Deployment Handoff Artifacts
+
+- `docs/deployment-checklist.md`
+- `docs/environment-matrix.md`
+- `docs/go-live-runbook.md`
+- `scripts/smoke-test.ps1`
