@@ -21,14 +21,11 @@ export async function authenticate(req, _res, next) {
   }
 
   const profile = await getProfileByAuthUserId(data.user.id);
-  if (!profile) {
-    return next(new HttpError(403, "Profile not found for authenticated user"));
-  }
 
   req.auth = {
     token,
     user: data.user,
-    profile,
+    profile: profile || null,
   };
 
   next();

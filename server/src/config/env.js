@@ -9,6 +9,7 @@ export const env = {
   supabaseUrl: process.env.SUPABASE_URL ?? "",
   supabaseAnonKey: process.env.SUPABASE_ANON_KEY ?? "",
   supabaseServiceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY ?? "",
+  adminSignupCode: process.env.ADMIN_SIGNUP_CODE ?? "",
   stripeSecretKey: process.env.STRIPE_SECRET_KEY ?? "",
   stripeWebhookSecret: process.env.STRIPE_WEBHOOK_SECRET ?? "",
   stripeMonthlyPriceId: process.env.STRIPE_MONTHLY_PRICE_ID ?? "",

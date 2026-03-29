@@ -35,3 +35,34 @@ export async function getProfileByAuthUserId(authUserId) {
 
   return data;
 }
+
+export async function upsertProfileForAuthUser({
+  authUserId,
+  email,
+  fullName,
+  role = "subscriber",
+}) {
+  if (!authUserId || !email) {
+    throw new Error("authUserId and email are required to upsert profile");
+  }
+
+  const { data, error } = await supabaseAdmin
+    .from("profiles")
+    .upsert(
+      {
+        auth_user_id: authUserId,
+        email: email.toLowerCase(),
+        full_name: fullName || null,
+        role,
+      },
+      { onConflict: "auth_user_id" },
+    )
+    .select("id, auth_user_id, email, full_name, role, is_active")
+    .single();
+
+  if (error) {
+    throw new Error(`Unable to upsert profile: ${error.message}`);
+  }
+
+  return data;
+}

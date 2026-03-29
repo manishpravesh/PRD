@@ -11,6 +11,22 @@ export default function AuthProvider({ children }) {
 
   const token = session?.access_token || "";
 
+  async function bootstrapProfile(nextToken, { fullName, role, adminCode } = {}) {
+    if (!nextToken) return null;
+
+    const response = await apiRequest("/api/v1/auth/bootstrap", {
+      method: "POST",
+      token: nextToken,
+      body: {
+        fullName,
+        role: role || "subscriber",
+        adminCode,
+      },
+    });
+
+    return response.data?.profile || null;
+  }
+
   async function refreshProfile(nextToken) {
     if (!nextToken) {
       setProfile(null);
@@ -19,7 +35,15 @@ export default function AuthProvider({ children }) {
 
     try {
       const result = await apiRequest("/api/v1/auth/me", { token: nextToken });
-      setProfile(result.data?.profile || null);
+      let nextProfile = result.data?.profile || null;
+
+      if (!nextProfile && result.data?.needsProfileSetup) {
+        nextProfile = await bootstrapProfile(nextToken, {
+          role: "subscriber",
+        });
+      }
+
+      setProfile(nextProfile);
       setError("");
     } catch (err) {
       setProfile(null);
@@ -72,13 +96,48 @@ export default function AuthProvider({ children }) {
       throw new Error("Supabase is not configured");
     }
 
-    const { error: signInError } = await supabase.auth.signInWithPassword({
+    const { data, error: signInError } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
     if (signInError) {
       throw new Error(signInError.message);
     }
+
+    const nextToken = data?.session?.access_token;
+    if (nextToken) {
+      await refreshProfile(nextToken);
+    }
+  }
+
+  async function signUp({ email, password, fullName, role, adminCode }) {
+    if (!supabase) {
+      throw new Error("Supabase is not configured");
+    }
+
+    const { data, error: signUpError } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          full_name: fullName || "",
+        },
+      },
+    });
+
+    if (signUpError) {
+      throw new Error(signUpError.message);
+    }
+
+    const nextToken = data?.session?.access_token;
+    if (!nextToken) {
+      throw new Error(
+        "Signup successful. Confirm your email first, then sign in.",
+      );
+    }
+
+    await bootstrapProfile(nextToken, { fullName, role, adminCode });
+    await refreshProfile(nextToken);
   }
 
   async function signOut() {
@@ -96,6 +155,7 @@ export default function AuthProvider({ children }) {
       profile,
       role: profile?.role || null,
       signIn,
+      signUp,
       signOut,
       isAuthenticated: Boolean(session?.access_token),
     }),
