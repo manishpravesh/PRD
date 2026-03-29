@@ -11,7 +11,10 @@ export default function AuthProvider({ children }) {
 
   const token = session?.access_token || "";
 
-  async function bootstrapProfile(nextToken, { fullName, role, adminCode } = {}) {
+  async function bootstrapProfile(
+    nextToken,
+    { fullName, role, adminCode } = {},
+  ) {
     if (!nextToken) return null;
 
     const response = await apiRequest("/api/v1/auth/bootstrap", {
@@ -96,10 +99,12 @@ export default function AuthProvider({ children }) {
       throw new Error("Supabase is not configured");
     }
 
-    const { data, error: signInError } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    const { data, error: signInError } = await supabase.auth.signInWithPassword(
+      {
+        email,
+        password,
+      },
+    );
     if (signInError) {
       throw new Error(signInError.message);
     }
